@@ -63,3 +63,15 @@ resource "google_project_iam_member" "prod_cicd" {
   role    = "projects/project-prod-12345/roles/CustomDeveloperRole"
   member  = "serviceAccount:${var.cicd_sa}"
 }
+resource "google_project_iam_member" "dev_time_condition" {
+  project = "project-dev-12345"
+  role    = "projects/project-dev-12345/roles/CustomDeveloperRole"
+  member  = "group:dev-team@googlegroups.com"
+
+  condition {
+    title       = "Temporary Access"
+    description = "Access valid till end of 2026"
+
+    expression  = "request.time < timestamp(\"2026-12-31T23:59:59Z\")"
+  }
+}
