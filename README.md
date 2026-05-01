@@ -124,6 +124,37 @@ request.time < timestamp("2026-12-31T23:59:59Z")
 
 ![IAM Architecture](images/architecture.png)
 
+---
+
+## GKE Cluster Creation
+
+A Kubernetes cluster is required to run containerized workloads and demonstrate Workload Identity.
+
+### What is a Cluster?
+A cluster is a group of virtual machines (nodes) that run containerized applications using Kubernetes.
+
+---
+
+### Create Cluster using gcloud CLI
+
+```
+gcloud container clusters create my-cluster \
+  --region=asia-south1 \
+  --workload-pool=project-dev-12345.svc.id.goog
+  ```
+
+## Role Binding in gcloud CLI
+
+### Example (Terraform)
+
+```hcl
+resource "google_project_iam_member" "cicd_dev_access" {
+  project = "project-dev-12345"
+  role    = "projects/project-dev-12345/roles/CustomDeveloperRole"
+  member  = "serviceAccount:cicd-sa1@project-dev-12345.iam.gserviceaccount.com"
+}
+
+```
 ##  Infrastructure as Code (Terraform)
 
 Terraform is used to manage IAM bindings and automate access control.
@@ -146,16 +177,13 @@ task1/
 ```
 terraform init
 terraform plan
+terraform apply
 ```
-
-> Note: `terraform apply` is not required if resources are already created manually.
 
 ---
 
 ## Conclusion
 
-This project demonstrates a real-world IAM architecture using GCP with strong security practices, proper access control, and scalable design suitable for production environments.
+In this project, I created a multi-environment IAM setup for development, staging, and production. Developers can deploy only in the dev environment and have read-only access in the others to keep things secure. DevOps engineers have full access to manage everything, and QA team members can only view and monitor. I also set up a CI/CD service account to handle deployments across all environments. To improve security, I used Workload Identity so Kubernetes workloads can access GCP services without using service account keys.
 
 ---
-
- *This architecture ensures secure, controlled, and role-based access to cloud resources across all environments.*
